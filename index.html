@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SEBRAETEC — Geradores</title>
+  <style>
+    :root{
+      --bg:#ffffff;--panel:#f7f7f8;--border:#e5e7eb;--text:#111827;--muted:#6b7280;
+      --btn:#111827;--btnText:#fff;--focus:#2563eb;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:var(--bg);line-height:1.35}
+    header{padding:14px 16px;border-bottom:1px solid var(--border);background:#fff;position:sticky;top:0;z-index:10}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    .headbar{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:14px}
+    .brand{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .brand img{height:42px;width:auto;display:block;object-fit:contain}
+    .titles{display:flex;flex-direction:column;gap:4px}
+    header h1{margin:0;font-size:16px}
+    header p{margin:0;color:var(--muted);font-size:13px}
+
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 0}
+    .tabbtn{
+      border:1px solid var(--border);background:#fff;padding:10px 12px;border-radius:12px;cursor:pointer;
+      font-weight:700;font-size:13px
+    }
+    .tabbtn[aria-selected="true"]{border-color:#111827;box-shadow:0 1px 0 rgba(0,0,0,.06)}
+    .tabpanel{display:none}
+    .tabpanel.active{display:block}
+
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px}
+    .card h2{margin:0 0 8px;font-size:14px}
+    .fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:900px){.fields{grid-template-columns:1fr}}
+    label{display:block;font-size:12px;font-weight:800;margin:2px 0 6px}
+    input, select, textarea{
+      width:100%;padding:10px 10px;border:1px solid #d1d5db;border-radius:12px;background:#fff;font-size:14px;outline:none
+    }
+    input:focus, select:focus, textarea:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+    textarea{min-height:90px;resize:vertical}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    button{
+      border:1px solid #111827;background:#fff;color:#111827;padding:10px 12px;border-radius:12px;
+      cursor:pointer;font-weight:800;font-size:13px
+    }
+    button.primary{background:var(--btn);color:var(--btnText)}
+    .outbox textarea{min-height:320px}
+    .meta{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:6px;color:var(--muted);font-size:12px}
+    .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:#fff;border-radius:999px;padding:6px 10px}
+    .ok{color:#065f46}
+    .warn{color:#92400e}
+    .small{font-size:12px;color:var(--muted)}
+    .hr{height:1px;background:var(--border);margin:12px 0}
+
+    .checkgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+    @media (max-width:900px){.checkgrid{grid-template-columns:1fr}}
+    .check{
+      display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px
+    }
+    .check input{width:auto;margin-top:2px}
+    .check span{font-size:13px}
+  </style>
+</head>
+<body>
+<header>
+  <div class="headbar">
+    <div class="brand">
+      <!-- Coloque as imagens no GitHub em /assets/ com estes nomes -->
+      <img src="assets/logo-sebraetec.png" alt="Logo Sebraetec" />
+      <img src="assets/logo-senai.png" alt="Logo SENAI" />
+    </div>
+    <div class="titles">
+      <h1>SEBRAETEC — Geradores</h1>
+      <p>Preencha os campos, revise o texto e use “Copiar texto” para colar no Microsoft Forms/relatório.</p>
+    </div>
+  </div>
+
+  <div class="wrap" style="padding-top:0">
+    <div class="tabs" role="tablist" aria-label="Abas">
+      <button class="tabbtn" role="tab" id="tab-rd" aria-controls="panel-rd" aria-selected="true">RESULTADOS DO DIAGNÓSTICO</button>
+      <button class="tabbtn" role="tab" id="tab-asis" aria-controls="panel-asis" aria-selected="false">MAPA AS IS</button>
+      <button class="tabbtn" role="tab" id="tab-te" aria-controls="panel-te" aria-selected="false">TAREFAS EXECUTADAS</button>
+      <button class="tabbtn" role="tab" id="tab-rc" aria-controls="panel-rc" aria-selected="false">RECOMENDAÇÕES E CONCLUSÕES</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ===================== ABA 1: RESULTADOS DO DIAGNÓSTICO ===================== -->
+  <section class="tabpanel active" id="panel-rd" role="tabpanel" aria-labelledby="tab-rd">
+    <div class="grid">
+      <div class="card">
+        <h2>Campos</h2>
+
+        <div class="fields">
+          <div>
+            <label>Empresa</label>
+            <input id="rd_empresa" placeholder="Ex.: M K de Azevedo Medeiros Indústria Têxtil" />
+          </div>
+          <div>
+            <label>Cidade/UF</label>
+            <input id="rd_cidadeuf" placeholder="Ex.: Acari/RN" />
+          </div>
+          <div>
+            <label>Segmento/atividade</label>
+            <input id="rd_segmento" placeholder="Ex.: vestuário em tecido plano" />
+          </div>
+          <div>
+            <label>Produto/linha</label>
+            <input id="rd_produto" placeholder="Ex.: jeans" />
+          </div>
+          <div>
+            <label>Produz para (opcional)</label>
+            <input id="rd_cliente" placeholder="Ex.: Guararapes" />
+          </div>
+          <div>
+            <label>Forma de levantamento</label>
+            <select id="rd_forma">
+              <option value="reunião com a empresária">reunião com a empresária</option>
+              <option value="visita técnica">visita técnica</option>
+              <option value="entrevistas">entrevistas</option>
+              <option value="observação em campo">observação em campo</option>
+              <option value="reuniões e observação em campo">reuniões e observação em campo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <label>Foco principal</label>
+        <input id="rd_foco" placeholder="Ex.: baixa produtividade" />
+
+        <label>Pontos negativos identificados</label>
+        <textarea id="rd_pontos" placeholder="Ex.: gargalos no fluxo produtivo, ausência de padronização, retrabalho..."></textarea>
+
+        <label>Objetivo da consultoria</label>
+        <textarea id="rd_objetivo" placeholder="Ex.: implementar melhorias na produtividade e na qualidade dos produtos"></textarea>
+
+        <label>Local de implantação das ações</label>
+        <input id="rd_local" placeholder="Ex.: diretamente no piso de fábrica" />
+
+        <div class="actions">
+          <button class="primary" id="rd_copiar">Copiar texto</button>
+          <button id="rd_limpar">Limpar</button>
+        </div>
+
+        <div class="meta">
+          <span class="pill" id="rd_status">Status: <b class="ok">pronto</b></span>
+          <span class="pill" id="rd_chars">Caracteres: 0</span>
+        </div>
+        <div class="small">Texto corrido (3 parágrafos). Se “Produz para” estiver vazio, o trecho é removido automaticamente.</div>
+      </div>
+
+      <div class="card outbox">
+        <h2>Texto gerado</h2>
+        <textarea id="rd_saida" readonly></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ABA 2: MAPA AS IS (LISTA) ===================== -->
+  <section class="tabpanel" id="panel-asis" role="tabpanel" aria-labelledby="tab-asis">
+    <div class="grid">
+      <div class="card">
+        <h2>Campos</h2>
+
+        <div class="fields">
+          <div>
+            <label>Nome do processo</label>
+            <input id="as_processo" placeholder="Ex.: Produção de Jeans" />
+          </div>
+          <div>
+            <label>Setor responsável</label>
+            <input id="as_setor" placeholder="Ex.: Costura" />
+          </div>
+          <div>
+            <label>Responsável entrevistado</label>
+            <input id="as_entrevistado" placeholder="Ex.: Supervisora de Produção" />
+          </div>
+          <div>
+            <label>Data do levantamento</label>
+            <input id="as_data" placeholder="Ex.: 10/02/2026" />
+          </div>
+          <div>
+            <label>Unidade/local</label>
+            <input id="as_local" placeholder="Ex.: Unidade Acari/RN" />
+          </div>
+          <div>
+            <label>Sistemas legados (opcional)</label>
+            <input id="as_sistemas" placeholder="Ex.: Planilha Excel / ERP X" />
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <label>Entradas do processo (uma por linha)</label>
+        <textarea id="as_entradas" placeholder="Ex.: Ordem de produção&#10;Tecido&#10;Aviamentos"></textarea>
+
+        <label>Saídas do processo (uma por linha)</label>
+        <textarea id="as_saidas" placeholder="Ex.: Peças costuradas&#10;Produto final"></textarea>
+
+        <div class="fields">
+          <div>
+            <label>Clientes do processo</label>
+            <input id="as_clientes" placeholder="Ex.: Expedição / Cliente externo" />
+          </div>
+          <div>
+            <label>Fornecedores do processo</label>
+            <input id="as_fornecedores" placeholder="Ex.: Almoxarifado / Compras / Fornecedor X" />
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <label>Atividades (As Is) — uma por linha (na sequência atual)</label>
+        <textarea id="as_atividades" placeholder="Ex.: Receber ordem&#10;Separar tecido&#10;Cortar peças&#10;Enviar para costura&#10;Acabamento&#10;Inspeção final"></textarea>
+
+        <label>Pontos críticos identificados</label>
+        <textarea id="as_pontoscrit" placeholder="Ex.: gargalos na costura, retrabalho por falhas no corte..."></textarea>
+
+        <label>Validação (nome do responsável)</label>
+        <input id="as_validacao" placeholder="Ex.: Nome / Cargo" />
+
+        <div class="actions">
+          <button class="primary" id="as_copiar">Copiar texto</button>
+          <button id="as_limpar">Limpar</button>
+        </div>
+
+        <div class="meta">
+          <span class="pill" id="as_status">Status: <b class="ok">pronto</b></span>
+          <span class="pill" id="as_chars">Caracteres: 0</span>
+        </div>
+        <div class="small">Formato lista (obrigatório). “Sistemas legados” só aparece se preenchido.</div>
+      </div>
+
+      <div class="card outbox">
+        <h2>Texto gerado</h2>
+        <textarea id="as_saida" readonly></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ABA 3: TAREFAS EXECUTADAS (TEXTO CORRIDO, 4 PARÁGRAFOS) ===================== -->
+  <section class="tabpanel" id="panel-te" role="tabpanel" aria-labelledby="tab-te">
+    <div class="grid">
+      <div class="card">
+        <h2>Campos</h2>
+
+        <div class="fields">
+          <div>
+            <label>Processo/área</label>
+            <input id="te_processo" placeholder="Ex.: confecção / costura / produção de jeans" />
+          </div>
+          <div>
+            <label>Equipe envolvida</label>
+            <input id="te_equipe" placeholder="Ex.: equipe de produção, líderes e operadores" />
+          </div>
+        </div>
+
+        <label>Objetivo da intervenção</label>
+        <input id="te_objetivo" placeholder="Ex.: otimizar o tempo no processo produtivo" />
+
+        <div class="hr"></div>
+
+        <label>O que foi analisado</label>
+        <textarea id="te_analisado" placeholder="Ex.: contrafluxo, métodos operacionais, layout, sequência operacional, tempos..."></textarea>
+
+        <label>Principais achados (problemas)</label>
+        <textarea id="te_achados" placeholder="Ex.: excesso de transporte e movimentação, falta de nivelamento, gargalos..."></textarea>
+
+        <label>Impacto observado (produtividade/qualidade/prazo)</label>
+        <input id="te_impacto" placeholder="Ex.: impactava negativamente a produtividade" />
+
+        <div class="hr"></div>
+
+        <label>Orientações/treinamentos realizados</label>
+        <textarea id="te_orientacoes" placeholder="Ex.: orientações específicas aos colaboradores das operações de gargalo..."></textarea>
+
+        <label>Ferramentas aplicadas</label>
+        <div class="checkgrid">
+          <label class="check"><input type="checkbox" id="te_f1"><span>Trabalho padronizado</span></label>
+          <label class="check"><input type="checkbox" id="te_f2"><span>Qualidade in loco</span></label>
+          <label class="check"><input type="checkbox" id="te_f3"><span>Fluxo contínuo</span></label>
+          <label class="check"><input type="checkbox" id="te_f4"><span>5S</span></label>
+          <label class="check"><input type="checkbox" id="te_f5"><span>Gestão à vista</span></label>
+          <label class="check"><input type="checkbox" id="te_f6"><span>Outros (descrever abaixo)</span></label>
+        </div>
+        <input id="te_f_outros" placeholder="Se marcou 'Outros', descreva aqui (opcional)" />
+
+        <label>Ações implementadas</label>
+        <textarea id="te_acoes" placeholder="Ex.: ajuste de sequência, redução de movimentação, padronização de operações..."></textarea>
+
+        <div class="hr"></div>
+
+        <label>Etapas abrangidas</label>
+        <div class="checkgrid">
+          <label class="check"><input type="checkbox" id="te_e1"><span>Preparação</span></label>
+          <label class="check"><input type="checkbox" id="te_e2"><span>Montagem</span></label>
+          <label class="check"><input type="checkbox" id="te_e3"><span>Acabamento</span></label>
+          <label class="check"><input type="checkbox" id="te_e4"><span>Outras (descrever abaixo)</span></label>
+        </div>
+        <input id="te_e_outros" placeholder="Se marcou 'Outras', descreva aqui (opcional)" />
+
+        <label>Resultados percebidos</label>
+        <textarea id="te_resultados" placeholder="Ex.: melhoria na qualidade do produto, aumento do fluxo, redução do tempo total..."></textarea>
+
+        <label>Observação final (opcional)</label>
+        <textarea id="te_obs" placeholder="Ex.: melhora no engajamento e confiança da equipe."></textarea>
+
+        <div class="actions">
+          <button class="primary" id="te_copiar">Copiar texto</button>
+          <button id="te_limpar">Limpar</button>
+        </div>
+
+        <div class="meta">
+          <span class="pill" id="te_status">Status: <b class="ok">pronto</b></span>
+          <span class="pill" id="te_chars">Caracteres: 0</span>
+        </div>
+        <div class="small">Texto corrido (4 parágrafos), impessoal. Observação final só aparece se preenchida.</div>
+      </div>
+
+      <div class="card outbox">
+        <h2>Texto gerado</h2>
+        <textarea id="te_saida" readonly></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ABA 4: RECOMENDAÇÕES E CONCLUSÕES (TEXTO CORRIDO, 3 PARÁGRAFOS) ===================== -->
+  <section class="tabpanel" id="panel-rc" role="tabpanel" aria-labelledby="tab-rc">
+    <div class="grid">
+      <div class="card">
+        <h2>Campos</h2>
+
+        <label>Situação atual (resumo do diagnóstico)</label>
+        <textarea id="rc_situacao" placeholder="Ex.: baixa produtividade, retrabalho, ausência de padronização..."></textarea>
+
+        <label>Recomendações técnicas</label>
+        <textarea id="rc_recomendacoes" placeholder="Ex.: implantação de padronização operacional..."></textarea>
+
+        <label>Ações prioritárias (curto prazo)</label>
+        <textarea id="rc_curto" placeholder="Ex.: treinamento, organização do layout..."></textarea>
+
+        <label>Ações recomendadas (médio prazo)</label>
+        <textarea id="rc_medio" placeholder="Ex.: implantação de indicadores, balanceamento de operações..."></textarea>
+
+        <label>Indicadores recomendados (opcional)</label>
+        <textarea id="rc_indicadores" placeholder="Ex.: produtividade por operador, taxa de retrabalho..."></textarea>
+
+        <label>Benefícios esperados</label>
+        <textarea id="rc_beneficios" placeholder="Ex.: redução de retrabalho, aumento da produtividade..."></textarea>
+
+        <label>Conclusão final</label>
+        <textarea id="rc_conclusao" placeholder="Ex.: a adoção das recomendações elevará a eficiência e competitividade..."></textarea>
+
+        <div class="actions">
+          <button class="primary" id="rc_copiar">Copiar texto</button>
+          <button id="rc_limpar">Limpar</button>
+        </div>
+
+        <div class="meta">
+          <span class="pill" id="rc_status">Status: <b class="ok">pronto</b></span>
+          <span class="pill" id="rc_chars">Caracteres: 0</span>
+        </div>
+        <div class="small">Texto corrido (3 parágrafos). Indicadores só aparecem se preenchidos.</div>
+      </div>
+
+      <div class="card outbox">
+        <h2>Texto gerado</h2>
+        <textarea id="rc_saida" readonly></textarea>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // ===== Helpers =====
+  const $ = (id) => document.getElementById(id);
+
+  function tidy(s){ return (s ?? "").toString().trim().replace(/\s+/g, " "); }
+  function ensureDot(s){
+    s = tidy(s);
+    if(!s) return "";
+    return /[.!?]$/.test(s) ? s : (s + ".");
+  }
+  function placeholder(val, ph){
+    val = tidy(val);
+    return val ? val : `[${ph}]`;
+  }
+  function lowerUnlessAcronym(s){
+    s = tidy(s);
+    if(!s) return s;
+    const upper = s.replace(/[^A-ZÁÀÂÃÉÊÍÓÔÕÚÇ]/g, "").length;
+    const lower = s.replace(/[^a-záàâãéêíóôõúç]/g, "").length;
+    if(upper >= 2 && lower <= 2) return s;
+    return s.charAt(0).toLowerCase() + s.slice(1);
+  }
+  function toLines(s){
+    return (s ?? "").toString().split(/\r?\n/).map(x => tidy(x)).filter(Boolean);
+  }
+  async function copyText(text){
+    try{ await navigator.clipboard.writeText(text); return true; }
+    catch(e){
+      const ta = document.createElement("textarea");
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try{ document.execCommand("copy"); } catch(_){}
+      document.body.removeChild(ta);
+      return true;
+    }
+  }
+
+  // ===== Tab navigation =====
+  const tabs = [
+    {btn: $("tab-rd"), panel: $("panel-rd")},
+    {btn: $("tab-asis"), panel: $("panel-asis")},
+    {btn: $("tab-te"), panel: $("panel-te")},
+    {btn: $("tab-rc"), panel: $("panel-rc")}
+  ];
+  function activateTab(index){
+    tabs.forEach((t,i)=>{
+      const active = i===index;
+      t.btn.setAttribute("aria-selected", active ? "true" : "false");
+      t.panel.classList.toggle("active", active);
+    });
+  }
+  tabs.forEach((t,i)=> t.btn.addEventListener("click", ()=>activateTab(i)));
+
+  // ===== ABA 1: Resultados do Diagnóstico (3 parágrafos) =====
+  function buildRD(){
+    const empresa  = placeholder($("rd_empresa").value, "nome da empresa");
+    const cidadeuf = placeholder($("rd_cidadeuf").value, "cidade/UF");
+    const segmento = placeholder(lowerUnlessAcronym($("rd_segmento").value), "segmento/atividade");
+    const produto  = placeholder($("rd_produto").value, "produto/linha");
+    const cliente  = tidy($("rd_cliente").value);
+    const forma    = placeholder($("rd_forma").value, "forma de levantamento");
+    const foco     = placeholder($("rd_foco").value, "foco principal");
+    const pontos   = placeholder($("rd_pontos").value, "pontos negativos");
+    const objetivo = placeholder($("rd_objetivo").value, "objetivo da consultoria");
+    const local    = placeholder($("rd_local").value, "local de implantação das ações");
+
+    const paraCliente = cliente ? ` para a empresa ${cliente}` : "";
+    const p1 = `A empresa ${empresa}, localizada em ${cidadeuf}, atua no segmento de ${segmento}, produzindo ${produto}${paraCliente}.`;
+    const p2 = `Durante ${forma}, foram identificados pontos negativos na operação, especialmente relacionados à ${foco}. Entre os principais aspectos observados destacam-se: ${ensureDot(pontos)}`;
+    const p3 = `Diante desse cenário, a empresa buscou o programa de consultoria do SENAI com o objetivo de ${ensureDot(objetivo)} por meio de ações a serem implantadas ${local}.`;
+
+    const out = `RESULTADOS DO DIAGNÓSTICO:\n\n${p1}\n\n${p2}\n\n${p3}`;
+    $("rd_saida").value = out;
+    $("rd_chars").innerHTML = `Caracteres: <b>${out.length}</b>`;
+  }
+  function clearRD(){
+    ["rd_empresa","rd_cidadeuf","rd_segmento","rd_produto","rd_cliente","rd_foco","rd_pontos","rd_objetivo","rd_local"].forEach(id => $(id).value="");
+    $("rd_forma").selectedIndex = 0;
+    buildRD();
+  }
+  ["rd_empresa","rd_cidadeuf","rd_segmento","rd_produto","rd_cliente","rd_forma","rd_foco","rd_pontos","rd_objetivo","rd_local"]
+    .forEach(id => $(id).addEventListener("input", buildRD));
+  $("rd_copiar").addEventListener("click", async ()=>{
+    buildRD();
+    const ok = await copyText($("rd_saida").value);
+    $("rd_status").innerHTML = ok ? `Status: <b class="ok">copiado</b>` : `Status: <b class="warn">falhou</b>`;
+    setTimeout(()=> $("rd_status").innerHTML = `Status: <b class="ok">pronto</b>`, 1200);
+  });
+  $("rd_limpar").addEventListener("click", clearRD);
+
+  // ===== ABA 2: Mapa As Is (lista) =====
+  function buildAS(){
+    const processo     = placeholder($("as_processo").value, "nome do processo");
+    const setor        = placeholder($("as_setor").value, "setor responsável");
+    const entrevistado = placeholder($("as_entrevistado").value, "responsável entrevistado");
+    const data         = placeholder($("as_data").value, "data do levantamento");
+    const local        = placeholder($("as_local").value, "unidade/local");
+    const sistemas     = tidy($("as_sistemas").value);
+
+    const entradas = toLines($("as_entradas").value);
+    const saidas   = toLines($("as_saidas").value);
+    const clientes = placeholder($("as_clientes").value, "clientes do processo");
+    const fornecedores = placeholder($("as_fornecedores").value, "fornecedores do processo");
+    const atividades = toLines($("as_atividades").value);
+    const pontoscrit = placeholder($("as_pontoscrit").value, "pontos críticos");
+    const validacao = placeholder($("as_validacao").value, "validação");
+
+    const entradasTxt = entradas.length ? entradas.map(x=>`- ${x}`).join("\n") : "- [entradas do processo]";
+    const saidasTxt   = saidas.length   ? saidas.map(x=>`- ${x}`).join("\n")   : "- [saídas do processo]";
+    const atividadesTxt = atividades.length ? atividades.map((x,i)=>`${i+1}. ${x}`).join("\n") : "1. [atividade 1]\n2. [atividade 2]";
+
+    let out = "";
+    out += "MAPA DE MODELAGEM DE PROCESSOS DO ESTADO ATUAL (AS IS):\n\n";
+    out += "1. Identificação do Processo\n";
+    out += `- Processo: ${processo}\n`;
+    out += `- Setor: ${setor}\n`;
+    out += `- Responsável entrevistado: ${entrevistado}\n`;
+    out += `- Data do levantamento: ${data}\n`;
+    out += `- Unidade: ${local}\n\n`;
+
+    out += "2. Entradas do Processo\n";
+    out += `${entradasTxt}\n\n`;
+
+    out += "3. Saídas do Processo\n";
+    out += `${saidasTxt}\n\n`;
+
+    out += "4. Clientes do Processo\n";
+    out += `- ${tidy(clientes)}\n\n`;
+
+    out += "5. Fornecedores do Processo\n";
+    out += `- ${tidy(fornecedores)}\n\n`;
+
+    if(sistemas){
+      out += "6. Sistemas Legados Identificados\n";
+      out += `- ${ensureDot(sistemas)}\n\n`;
+      out += "7. Sequência Atual das Atividades (As Is)\n";
+    }else{
+      out += "6. Sequência Atual das Atividades (As Is)\n";
+    }
+
+    out += `${atividadesTxt}\n\n`;
+
+    const pontosHeaderNum = sistemas ? "8" : "7";
+    out += `${pontosHeaderNum}. Pontos Críticos Identificados\n`;
+    out += `- ${ensureDot(pontoscrit)}\n\n`;
+
+    const validHeaderNum = sistemas ? "9" : "8";
+    out += `${validHeaderNum}. Validação do Mapeamento\n`;
+    out += `- Mapeamento apresentado e validado por: ${validacao}\n`;
+
+    $("as_saida").value = out;
+    $("as_chars").innerHTML = `Caracteres: <b>${out.length}</b>`;
+  }
+  function clearAS(){
+    ["as_processo","as_setor","as_entrevistado","as_data","as_local","as_sistemas","as_entradas","as_saidas","as_clientes","as_fornecedores","as_atividades","as_pontoscrit","as_validacao"]
+      .forEach(id => $(id).value="");
+    buildAS();
+  }
+  ["as_processo","as_setor","as_entrevistado","as_data","as_local","as_sistemas","as_entradas","as_saidas","as_clientes","as_fornecedores","as_atividades","as_pontoscrit","as_validacao"]
+    .forEach(id => $(id).addEventListener("input", buildAS));
+  $("as_copiar").addEventListener("click", async ()=>{
+    buildAS();
+    const ok = await copyText($("as_saida").value);
+    $("as_status").innerHTML = ok ? `Status: <b class="ok">copiado</b>` : `Status: <b class="warn">falhou</b>`;
+    setTimeout(()=> $("as_status").innerHTML = `Status: <b class="ok">pronto</b>`, 1200);
+  });
+  $("as_limpar").addEventListener("click", clearAS);
+
+  // ===== ABA 3: Tarefas Executadas (4 parágrafos) =====
+  function selectedList(items){
+    const picked = items.filter(x=>x.checked).map(x=>x.label);
+    return picked.length ? picked : ["[preencher]"];
+  }
+  function joinHuman(list){
+    const arr = list.map(tidy).filter(Boolean);
+    if(!arr.length) return "[preencher]";
+    if(arr.length === 1) return arr[0];
+    if(arr.length === 2) return `${arr[0]} e ${arr[1]}`;
+    return `${arr.slice(0,-1).join(", ")} e ${arr[arr.length-1]}`;
+  }
+
+  function buildTE(){
+    const processo = placeholder($("te_processo").value, "processo/área");
+    const equipe   = placeholder($("te_equipe").value, "equipe envolvida");
+    const objetivo = placeholder($("te_objetivo").value, "objetivo da intervenção");
+
+    const analisado = placeholder($("te_analisado").value, "o que foi analisado");
+    const achados   = placeholder($("te_achados").value, "principais achados");
+    const impacto   = placeholder($("te_impacto").value, "impacto observado");
+
+    const orientacoes = placeholder($("te_orientacoes").value, "orientações/treinamentos realizados");
+    const acoes       = placeholder($("te_acoes").value, "ações implementadas");
+
+    const ferramentas = selectedList([
+      {checked: $("te_f1").checked, label: "trabalho padronizado"},
+      {checked: $("te_f2").checked, label: "qualidade in loco"},
+      {checked: $("te_f3").checked, label: "fluxo contínuo"},
+      {checked: $("te_f4").checked, label: "5S"},
+      {checked: $("te_f5").checked, label: "gestão à vista"},
+      {checked: $("te_f6").checked, label: tidy($("te_f_outros").value) || "outros (não especificado)"}
+    ]);
+    const ferramentasTxt = joinHuman(ferramentas);
+
+    const etapas = selectedList([
+      {checked: $("te_e1").checked, label: "preparação"},
+      {checked: $("te_e2").checked, label: "montagem"},
+      {checked: $("te_e3").checked, label: "acabamento"},
+      {checked: $("te_e4").checked, label: tidy($("te_e_outros").value) || "outras etapas (não especificadas)"}
+    ]);
+    const etapasTxt = joinHuman(etapas);
+
+    const resultados = placeholder($("te_resultados").value, "resultados percebidos");
+    const obs = tidy($("te_obs").value);
+
+    const p1 = `Ao iniciar o processo de intervenção, trabalhou-se com ${equipe} a necessidade de alinhar as atividades operacionais do(a) ${processo} de acordo com ${ensureDot(objetivo)}`;
+    const p2 = `Com o objetivo de ${ensureDot(objetivo)} foram analisados ${ensureDot(analisado)} Durante essa análise, identificou-se ${ensureDot(achados)} o que ${ensureDot(impacto)}`;
+    const p3 = `Também foram realizadas ${ensureDot(orientacoes)} Considerando as ações de intervenção implementadas, foram aplicadas ferramentas como ${ensureDot(ferramentasTxt)} e executadas as seguintes ações: ${ensureDot(acoes)}`;
+    const p4core = `As medidas implementadas abrangeram as etapas de ${ensureDot(etapasTxt)} proporcionando ${ensureDot(resultados)}`;
+    const p4 = obs ? `${p4core} ${ensureDot(obs)}` : p4core;
+
+    const out = `TAREFAS EXECUTADAS:\n\n${p1}\n\n${p2}\n\n${p3}\n\n${p4}`;
+    $("te_saida").value = out;
+    $("te_chars").innerHTML = `Caracteres: <b>${out.length}</b>`;
+  }
+
+  function clearTE(){
+    ["te_processo","te_equipe","te_objetivo","te_analisado","te_achados","te_impacto","te_orientacoes","te_f_outros","te_acoes","te_e_outros","te_resultados","te_obs"]
+      .forEach(id => $(id).value="");
+    ["te_f1","te_f2","te_f3","te_f4","te_f5","te_f6","te_e1","te_e2","te_e3","te_e4"].forEach(id => $(id).checked=false);
+    buildTE();
+  }
+
+  [
+    "te_processo","te_equipe","te_objetivo","te_analisado","te_achados","te_impacto","te_orientacoes",
+    "te_f_outros","te_acoes","te_e_outros","te_resultados","te_obs"
+  ].forEach(id => $(id).addEventListener("input", buildTE));
+
+  ["te_f1","te_f2","te_f3","te_f4","te_f5","te_f6","te_e1","te_e2","te_e3","te_e4"]
+    .forEach(id => $(id).addEventListener("change", buildTE));
+
+  $("te_copiar").addEventListener("click", async ()=>{
+    buildTE();
+    const ok = await copyText($("te_saida").value);
+    $("te_status").innerHTML = ok ? `Status: <b class="ok">copiado</b>` : `Status: <b class="warn">falhou</b>`;
+    setTimeout(()=> $("te_status").innerHTML = `Status: <b class="ok">pronto</b>`, 1200);
+  });
+  $("te_limpar").addEventListener("click", clearTE);
+
+  // ===== ABA 4: Recomendações e Conclusões (3 parágrafos) =====
+  function buildRC(){
+    const situacao = placeholder($("rc_situacao").value, "situação atual");
+    const recomendacoes = placeholder($("rc_recomendacoes").value, "recomendações técnicas");
+    const curto = placeholder($("rc_curto").value, "ações prioritárias");
+    const medio = placeholder($("rc_medio").value, "ações recomendadas (médio prazo)");
+    const indicadores = tidy($("rc_indicadores").value);
+    const beneficios = placeholder($("rc_beneficios").value, "benefícios esperados");
+    const conclusao = placeholder($("rc_conclusao").value, "conclusão final");
+
+    const p1 = `Com base no diagnóstico realizado, recomenda-se ${ensureDot(recomendacoes)} Considerando os problemas identificados, tais como ${ensureDot(situacao)} torna-se necessário implementar ações voltadas para ${ensureDot(curto)}`;
+    const p2 = indicadores
+      ? `Em médio prazo, sugere-se ${ensureDot(medio)} e a adoção de indicadores como ${ensureDot(indicadores)} a fim de possibilitar o monitoramento contínuo dos resultados.`
+      : `Em médio prazo, sugere-se ${ensureDot(medio)} a fim de possibilitar o monitoramento contínuo dos resultados.`;
+    const p3 = `A implementação das medidas propostas proporcionará ${ensureDot(beneficios)} Conclui-se que ${ensureDot(conclusao)}`;
+
+    const out = `RECOMENDAÇÕES E CONCLUSÕES:\n\n${p1}\n\n${p2}\n\n${p3}`;
+    $("rc_saida").value = out;
+    $("rc_chars").innerHTML = `Caracteres: <b>${out.length}</b>`;
+  }
+  function clearRC(){
+    ["rc_situacao","rc_recomendacoes","rc_curto","rc_medio","rc_indicadores","rc_beneficios","rc_conclusao"].forEach(id=>$(id).value="");
+    buildRC();
+  }
+  ["rc_situacao","rc_recomendacoes","rc_curto","rc_medio","rc_indicadores","rc_beneficios","rc_conclusao"]
+    .forEach(id => $(id).addEventListener("input", buildRC));
+  $("rc_copiar").addEventListener("click", async ()=>{
+    buildRC();
+    const ok = await copyText($("rc_saida").value);
+    $("rc_status").innerHTML = ok ? `Status: <b class="ok">copiado</b>` : `Status: <b class="warn">falhou</b>`;
+    setTimeout(()=> $("rc_status").innerHTML = `Status: <b class="ok">pronto</b>`, 1200);
+  });
+  $("rc_limpar").addEventListener("click", clearRC);
+
+  // ===== Initial builds =====
+  buildRD(); buildAS(); buildTE(); buildRC();
+</script>
+</body>
+</html>
