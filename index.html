@@ -514,7 +514,7 @@
   });
   $("rd_limpar").addEventListener("click", clearRD);
 
-  // ===== ABA 2: Mapa As Is (lista) =====
+  // ===== ABA 2: Mapa As Is (texto técnico em 3 partes) =====
   function buildAS(){
     const processo     = placeholder($("as_processo").value, "nome do processo");
     const setor        = placeholder($("as_setor").value, "setor responsável");
@@ -531,48 +531,41 @@
     const pontoscrit = placeholder($("as_pontoscrit").value, "pontos críticos");
     const validacao = placeholder($("as_validacao").value, "validação");
 
-    const entradasTxt = entradas.length ? entradas.map(x=>`- ${x}`).join("\n") : "- [entradas do processo]";
-    const saidasTxt   = saidas.length   ? saidas.map(x=>`- ${x}`).join("\n")   : "- [saídas do processo]";
-    const atividadesTxt = atividades.length ? atividades.map((x,i)=>`${i+1}. ${x}`).join("\n") : "1. [atividade 1]\n2. [atividade 2]";
+    const toTechnicalList = (items, fallback) => {
+      if(!items.length) return fallback;
+      return joinHuman(items.map(item => {
+        const txt = tidy(item);
+        if(!txt) return "";
+        if(/^(receber|separar|cortar|enviar|acabar|inspecionar|embalar|expedir)\b/i.test(txt)){
+          return `execução de ${txt.toLowerCase()}`;
+        }
+        return txt.toLowerCase();
+      }).filter(Boolean));
+    };
+
+    const entradasTxt = toTechnicalList(entradas, "[entradas do processo]");
+    const saidasTxt = toTechnicalList(saidas, "[saídas do processo]");
+    const atividadesTxt = atividades.length
+      ? atividades.map(item => tidy(item).toLowerCase()).filter(Boolean)
+      : ["[atividade 1]", "[atividade 2]"];
+    const atividadesSeqTxt = joinHuman(atividadesTxt);
+    const pontosCriticosTxt = pontoscrit.startsWith("[")
+      ? pontoscrit
+      : ensureDot(lowerUnlessAcronym(pontoscrit));
+
+    const p1 = `O processo produtivo é composto por ${lowerUnlessAcronym(processo)}, sob responsabilidade do setor ${lowerUnlessAcronym(setor)}, considerando como entradas ${entradasTxt} e como saídas ${saidasTxt}. O levantamento foi realizado em ${local} na data de ${data}, com informações fornecidas por ${lowerUnlessAcronym(entrevistado)}, envolvendo fornecedores ${lowerUnlessAcronym(fornecedores)} e clientes ${lowerUnlessAcronym(clientes)}${sistemas ? `, com uso de sistemas legados como ${lowerUnlessAcronym(sistemas)}` : ""}.`;
+    const p2 = `As atividades seguem a seguinte sequência: ${atividadesSeqTxt}, mantendo o fluxo operacional atualmente praticado, sem proposição de mudanças neste registro do estado As Is.`;
+    const p3 = `Durante a análise, foram identificados ${pontosCriticosTxt} Esses aspectos evidenciam falhas, gargalos e ineficiências no processo atual, com impacto sobre continuidade do fluxo, tempo de processamento e desempenho operacional.`;
 
     let out = "";
     out += "MAPA DE MODELAGEM DE PROCESSOS DO ESTADO ATUAL (AS IS):\n\n";
-    out += "1. Identificação do Processo\n";
-    out += `- Processo: ${processo}\n`;
-    out += `- Setor: ${setor}\n`;
-    out += `- Responsável entrevistado: ${entrevistado}\n`;
-    out += `- Data do levantamento: ${data}\n`;
-    out += `- Unidade: ${local}\n\n`;
-
-    out += "2. Entradas do Processo\n";
-    out += `${entradasTxt}\n\n`;
-
-    out += "3. Saídas do Processo\n";
-    out += `${saidasTxt}\n\n`;
-
-    out += "4. Clientes do Processo\n";
-    out += `- ${tidy(clientes)}\n\n`;
-
-    out += "5. Fornecedores do Processo\n";
-    out += `- ${tidy(fornecedores)}\n\n`;
-
-    if(sistemas){
-      out += "6. Sistemas Legados Identificados\n";
-      out += `- ${ensureDot(sistemas)}\n\n`;
-      out += "7. Sequência Atual das Atividades (As Is)\n";
-    }else{
-      out += "6. Sequência Atual das Atividades (As Is)\n";
-    }
-
-    out += `${atividadesTxt}\n\n`;
-
-    const pontosHeaderNum = sistemas ? "8" : "7";
-    out += `${pontosHeaderNum}. Pontos Críticos Identificados\n`;
-    out += `- ${ensureDot(pontoscrit)}\n\n`;
-
-    const validHeaderNum = sistemas ? "9" : "8";
-    out += `${validHeaderNum}. Validação do Mapeamento\n`;
-    out += `- Mapeamento apresentado e validado por: ${validacao}\n`;
+    out += "1. Descrição do processo produtivo atual\n";
+    out += `${p1}\n\n`;
+    out += "2. Sequência das atividades\n";
+    out += `${p2}\n\n`;
+    out += "3. Falhas, gargalos e ineficiências identificadas\n";
+    out += `${p3}\n\n`;
+    out += `Validação do mapeamento: ${validacao}.`;
 
     $("as_saida").value = out;
     $("as_chars").innerHTML = `Caracteres: <b>${out.length}</b>`;
@@ -711,7 +704,6 @@
 </script>
 </body>
 </html>
-
 
 
 
