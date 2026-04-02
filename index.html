@@ -454,13 +454,13 @@
     const outrosProblemas = tidy($("rd_outros_problemas").value);
 
     const problemasMap = [
-      {checked: $("rd_neg1").checked, label: "alto índice de retrabalho"},
-      {checked: $("rd_neg2").checked, label: "baixa produtividade nas operações"},
-      {checked: $("rd_neg3").checked, label: "ausência de padronização operacional"},
-      {checked: $("rd_neg4").checked, label: "gargalos no processo produtivo"},
-      {checked: $("rd_neg5").checked, label: "excesso de movimentação interna"},
-      {checked: $("rd_neg6").checked, label: "estoque intermediário entre etapas"},
-      {checked: $("rd_neg7").checked, label: "variação de medidas no produto"}
+      {checked: $("rd_neg1").checked, label: "o alto índice de retrabalho"},
+      {checked: $("rd_neg2").checked, label: "a baixa produtividade nas operações"},
+      {checked: $("rd_neg3").checked, label: "a ausência de padronização operacional"},
+      {checked: $("rd_neg4").checked, label: "os gargalos no processo produtivo"},
+      {checked: $("rd_neg5").checked, label: "o excesso de movimentação interna"},
+      {checked: $("rd_neg6").checked, label: "a formação de estoques intermediários entre etapas"},
+      {checked: $("rd_neg7").checked, label: "as variações de medidas no produto"}
     ];
     const problemasSelecionados = problemasMap.filter(x=>x.checked).map(x=>x.label);
     if(outrosProblemas){
@@ -478,7 +478,7 @@
 
     const focoTxt = foco.startsWith("[")
       ? foco
-      : `com foco em ${lowerUnlessAcronym(foco)}`;
+      : lowerUnlessAcronym(foco);
     const objetivoTxt = objetivo.startsWith("[")
       ? objetivo
       : lowerUnlessAcronym(objetivo);
@@ -490,7 +490,7 @@
       ? ` Também foram observados ${complementaresTxt}, comprometendo a eficiência operacional e a qualidade final.`
       : ` Esses pontos vêm comprometendo a eficiência operacional e a qualidade final.`;
     const p2 = `${p2a}${p2b}`;
-    const p3 = `Diante desse cenário, a consultoria do SENAI foi direcionada para ${objetivoTxt}, ${focoTxt}, com ações previstas para implantação ${local}.`;
+    const p3 = `Diante desse cenário, a consultoria do SENAI foi direcionada para ${objetivoTxt}, com foco em ${focoTxt}, com ações previstas para implantação ${local}.`;
 
     const out = `RESULTADOS DO DIAGNÓSTICO:\n\n${p1}\n\n${p2}\n\n${p3}`;
     $("rd_saida").value = out;
