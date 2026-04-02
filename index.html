@@ -454,12 +454,12 @@
     const outrosProblemas = tidy($("rd_outros_problemas").value);
 
     const problemasMap = [
-      {checked: $("rd_neg1").checked, label: "alto índice de retrabalho"},
-      {checked: $("rd_neg2").checked, label: "baixa produtividade nas operações"},
-      {checked: $("rd_neg3").checked, label: "ausência de padronização operacional"},
+      {checked: $("rd_neg1").checked, label: "o alto índice de retrabalho"},
+      {checked: $("rd_neg2").checked, label: "a baixa produtividade nas operações"},
+      {checked: $("rd_neg3").checked, label: "a ausência de padronização operacional"},
       {checked: $("rd_neg4").checked, label: "gargalos no processo produtivo"},
       {checked: $("rd_neg5").checked, label: "excesso de movimentação interna"},
-      {checked: $("rd_neg6").checked, label: "estoque intermediário entre etapas"},
+      {checked: $("rd_neg6").checked, label: "formação de estoques intermediários entre etapas"},
       {checked: $("rd_neg7").checked, label: "variação de medidas no produto"}
     ];
     const problemasSelecionados = problemasMap.filter(x=>x.checked).map(x=>x.label);
@@ -478,7 +478,7 @@
 
     const focoTxt = foco.startsWith("[")
       ? foco
-      : `com foco em ${lowerUnlessAcronym(foco)}`;
+      : `visando ${lowerUnlessAcronym(foco)}`;
     const objetivoTxt = objetivo.startsWith("[")
       ? objetivo
       : lowerUnlessAcronym(objetivo);
