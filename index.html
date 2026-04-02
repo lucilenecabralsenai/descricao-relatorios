@@ -661,7 +661,8 @@
       .replace(/\bresultou em\b/gi, "foi conduzido para")
       .replace(/\bganho de produtividade\b/gi, "ajuste do ritmo operacional")
       .replace(/\bde o\b/gi, "da")
-      .replace(/\bde a\b/gi, "da");
+      .replace(/\bde a\b/gi, "da")
+      .replace(/\bforam aplicadas orientações\b/gi, "sendo realizadas orientações");
   }
   function normalizeTESentence(text){
     let clean = sanitizeTEInput(text)
@@ -719,15 +720,15 @@
     const processoTxt = lowerUnlessAcronym(processo);
     const objetivoTxt = lowerUnlessAcronym(objetivo);
     const equipeTxt = lowerUnlessAcronym(equipe);
-    const analisadoTxt = ensureDot(analisado);
-    const acoesTxt = ensureDot(acoes);
-    const ferramentasFmt = ensureDot(ferramentasTxt);
-    const etapasFmt = ensureDot(etapasTxt);
-    const orientacoesTxt = ensureDot(orientacoes);
+    const analisadoTxt = tidy(analisado).replace(/\.$/, "");
+    const acoesTxt = tidy(acoes).replace(/\.$/, "");
+    const ferramentasFmt = tidy(ferramentasTxt).replace(/\.$/, "");
+    const etapasFmt = tidy(etapasTxt).replace(/\.$/, "");
+    const orientacoesTxt = tidy(orientacoes).replace(/\.$/, "");
 
-    const p1 = `No processo de ${processoTxt}, foi realizado o levantamento do fluxo produtivo, com análise de ${analisadoTxt} A atividade foi conduzida com foco em ${objetivoTxt}, considerando a rotina operacional e a sequência das atividades.`;
-    const p2 = `Na etapa seguinte, foram implementadas ações no processo produtivo, com execução de ${acoesTxt} Também foram aplicadas ferramentas como ${ferramentasFmt} nas etapas de ${etapasFmt}`;
-    const p3 = `Ao longo da execução, sendo realizadas orientações e acompanhamentos junto à ${equipeTxt}, foram aplicadas ${orientacoesTxt} mantendo suporte técnico contínuo durante as atividades operacionais.`;
+    const p1 = `No processo de ${processoTxt}, foi realizado o levantamento do fluxo produtivo, com análise de ${analisadoTxt}. Foi acompanhado o trabalho com foco em ${objetivoTxt}, considerando a rotina operacional e a sequência das atividades.`;
+    const p2 = `Na etapa seguinte, foram implementadas ações no processo produtivo, com execução de ${acoesTxt}, com aplicação de ferramentas como ${ferramentasFmt} nas etapas de ${etapasFmt}.`;
+    const p3 = `Ao longo da execução, sendo realizadas orientações junto à ${equipeTxt}, com acompanhamentos técnicos sobre ${orientacoesTxt}, mantendo suporte contínuo durante as atividades operacionais.`;
 
     const out = `TAREFAS EXECUTADAS:\n\n${p1}\n\n${p2}\n\n${p3}`;
     $("te_saida").value = out;
