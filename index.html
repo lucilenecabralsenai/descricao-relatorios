@@ -437,6 +437,30 @@
     if(/\r?\n/.test(clean)) return toLines(clean);
     return clean.split(/\s*[,;]\s*|\s+\/\s+/).map(tidy).filter(Boolean);
   }
+  function normalizeProcessName(text){
+    const clean = tidy(text);
+    if(!clean || clean.startsWith("[")) return clean;
+    return clean
+      .replace(/^(o\s+)?processo\s+produtivo\s+de\s+/i, "")
+      .replace(/^processo\s+de\s+/i, "")
+      .replace(/^produ[cç][aã]o\s+de\s+/i, "");
+  }
+  function splitCriticalIssues(text){
+    const clean = tidy(text);
+    if(!clean) return [];
+    const baseItems = splitSmartList(clean);
+    if(baseItems.length > 1) return baseItems;
+
+    const heuristica = clean.replace(
+      /\s+(?=(gargalos?|retrabalho|falta|atrasos?|excesso|aus[êe]ncia|baixa|falhas?|desperd[ií]cios?|varia[cç][aã]o)\b)/gi,
+      " | "
+    );
+    return heuristica.split(/\s*\|\s*/).map(tidy).filter(Boolean);
+  }
+  function normalizeInlineList(text, fallback){
+    const items = splitSmartList(text).map(item => lowerUnlessAcronym(item));
+    return items.length ? joinHuman(items) : fallback;
+  }
   function formatActorWithArticle(name){
     const txt = tidy(name);
     if(!txt || txt.startsWith("[")) return txt;
@@ -547,7 +571,7 @@
 
   // ===== ABA 2: Mapa As Is (texto técnico em 3 partes) =====
   function buildAS(){
-    const processo     = placeholder($("as_processo").value, "nome do processo");
+    const processo     = placeholder(normalizeProcessName($("as_processo").value), "nome do processo");
     const setor        = placeholder($("as_setor").value, "setor responsável");
     const entrevistado = placeholder($("as_entrevistado").value, "responsável entrevistado");
     const data         = placeholder($("as_data").value, "data do levantamento");
@@ -582,20 +606,20 @@
     const atividadesSeqTxt = joinHuman(atividadesTxt);
     const pontosCriticosItens = pontoscrit.startsWith("[")
       ? [pontoscrit]
-      : splitSmartList(lowerUnlessAcronym(pontoscrit)).map(item => lowerUnlessAcronym(item));
+      : splitCriticalIssues(pontoscrit).map(item => lowerUnlessAcronym(item));
     const pontosCriticosTxt = ensureDot(joinHuman(pontosCriticosItens));
     const fornecedoresTxt = fornecedores.startsWith("[")
       ? fornecedores
-      : `fornecedores como ${lowerUnlessAcronym(fornecedores)}`;
+      : `fornecedores como ${normalizeInlineList(fornecedores, "[fornecedores do processo]")}`;
     const clientesTxt = clientes.startsWith("[")
       ? clientes
-      : `clientes como ${lowerUnlessAcronym(clientes)}`;
+      : `clientes como ${normalizeInlineList(clientes, "[clientes do processo]")}`;
     const entrevistadoTxt = formatActorWithArticle(entrevistado);
 
     const setorTxt = lowerUnlessAcronym(setor).replace(/^(de\s+)/i, "");
     const p1 = `O processo produtivo de ${lowerUnlessAcronym(processo)} é composto pelas atividades relacionadas à sua execução, sob responsabilidade do setor de ${setorTxt}, considerando como entradas ${entradasTxt} e como saídas ${saidasTxt}. O levantamento foi realizado em ${local}, na data de ${data}, com informações fornecidas ${entrevistadoTxt}, envolvendo ${fornecedoresTxt} e ${clientesTxt}${sistemas ? `, com uso de sistemas legados como ${lowerUnlessAcronym(sistemas)}` : ""}.`;
     const p2 = `As atividades seguem a seguinte sequência: ${atividadesSeqTxt}, mantendo o fluxo operacional atualmente praticado, sem proposição de mudanças neste registro do estado As Is.`;
-    const p3 = `Durante a análise, foram identificados ${pontosCriticosTxt} Esses aspectos evidenciam falhas, gargalos e ineficiências no processo atual, com impacto sobre a continuidade do fluxo produtivo, o tempo de processamento e o desempenho operacional.`;
+    const p3 = `Durante a análise, foram identificados ${pontosCriticosTxt} Esses achados evidenciam falhas, gargalos e ineficiências no processo atual, com impacto sobre a continuidade do fluxo produtivo, o tempo de processamento e o desempenho operacional.`;
 
     let out = "";
     out += "MAPA DE MODELAGEM DE PROCESSOS DO ESTADO ATUAL (AS IS):\n\n";
@@ -744,4 +768,3 @@
 </script>
 </body>
 </html>
-
