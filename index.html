@@ -426,8 +426,9 @@
     const txt = tidy(term);
     if(!txt || txt.startsWith("[")) return txt;
     if(/^(o|a|os|as|um|uma|uns|umas)\b/i.test(txt)) return txt;
-    if(/ões$|ães$|ais$|eis$|is$|os$|es$|ns$/i.test(txt)) return `os ${txt}`;
-    if(/[aã]$/i.test(txt)) return `a ${txt}`;
+    if(/(as|ções|sões|dades|gens|zes)$/i.test(txt)) return `as ${txt}`;
+    if(/(ões|ães|ais|eis|is|os|es|ns)$/i.test(txt)) return `os ${txt}`;
+    if(/(a|ã|ção|são|dade|gem|ice|ez|iz)$/i.test(txt)) return `a ${txt}`;
     return `o ${txt}`;
   }
   function splitSmartList(text){
@@ -591,9 +592,10 @@
       : `clientes como ${lowerUnlessAcronym(clientes)}`;
     const entrevistadoTxt = formatActorWithArticle(entrevistado);
 
-    const p1 = `O processo produtivo é composto por ${lowerUnlessAcronym(processo)}, sob responsabilidade do setor ${lowerUnlessAcronym(setor)}, considerando como entradas ${entradasTxt} e como saídas ${saidasTxt}. O levantamento foi realizado em ${local}, na data de ${data}, com informações fornecidas ${entrevistadoTxt}, envolvendo ${fornecedoresTxt} e ${clientesTxt}${sistemas ? `, com uso de sistemas legados como ${lowerUnlessAcronym(sistemas)}` : ""}.`;
+    const setorTxt = lowerUnlessAcronym(setor).replace(/^(de\s+)/i, "");
+    const p1 = `O processo produtivo de ${lowerUnlessAcronym(processo)} é composto pelas atividades relacionadas à sua execução, sob responsabilidade do setor de ${setorTxt}, considerando como entradas ${entradasTxt} e como saídas ${saidasTxt}. O levantamento foi realizado em ${local}, na data de ${data}, com informações fornecidas ${entrevistadoTxt}, envolvendo ${fornecedoresTxt} e ${clientesTxt}${sistemas ? `, com uso de sistemas legados como ${lowerUnlessAcronym(sistemas)}` : ""}.`;
     const p2 = `As atividades seguem a seguinte sequência: ${atividadesSeqTxt}, mantendo o fluxo operacional atualmente praticado, sem proposição de mudanças neste registro do estado As Is.`;
-    const p3 = `Durante a análise, foram identificados ${pontosCriticosTxt} Esses aspectos evidenciam falhas, gargalos e ineficiências no processo atual, com impacto sobre a continuidade do fluxo, o tempo de processamento e o desempenho operacional.`;
+    const p3 = `Durante a análise, foram identificados ${pontosCriticosTxt} Esses aspectos evidenciam falhas, gargalos e ineficiências no processo atual, com impacto sobre a continuidade do fluxo produtivo, o tempo de processamento e o desempenho operacional.`;
 
     let out = "";
     out += "MAPA DE MODELAGEM DE PROCESSOS DO ESTADO ATUAL (AS IS):\n\n";
@@ -742,5 +744,4 @@
 </script>
 </body>
 </html>
-
 
