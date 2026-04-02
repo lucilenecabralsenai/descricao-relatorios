@@ -254,7 +254,7 @@
     </div>
   </section>
 
-  <!-- ===================== ABA 3: TAREFAS EXECUTADAS (TEXTO CORRIDO, 4 PARÁGRAFOS) ===================== -->
+  <!-- ===================== ABA 3: TAREFAS EXECUTADAS (TEXTO CORRIDO, 3 PARÁGRAFOS) ===================== -->
   <section class="tabpanel" id="panel-te" role="tabpanel" aria-labelledby="tab-te">
     <div class="grid">
       <div class="card">
@@ -330,7 +330,7 @@
           <span class="pill" id="te_status">Status: <b class="ok">pronto</b></span>
           <span class="pill" id="te_chars">Caracteres: 0</span>
         </div>
-        <div class="small">Texto corrido (4 parágrafos), impessoal. Observação final só aparece se preenchida.</div>
+        <div class="small">Texto corrido (3 parágrafos), impessoal e focado apenas nas ações executadas.</div>
       </div>
 
       <div class="card outbox">
@@ -649,10 +649,26 @@
   });
   $("as_limpar").addEventListener("click", clearAS);
 
-  // ===== ABA 3: Tarefas Executadas (4 parágrafos) =====
+  // ===== ABA 3: Tarefas Executadas (3 parágrafos) =====
   function selectedList(items){
     const picked = items.filter(x=>x.checked).map(x=>x.label);
     return picked.length ? picked : ["[preencher]"];
+  }
+  function sanitizeTEInput(text){
+    return tidy(text)
+      .replace(/\bfoi identificado\b/gi, "foi verificado")
+      .replace(/\bhouve melhoria\b/gi, "foi realizada adequação")
+      .replace(/\bresultou em\b/gi, "foi conduzido para")
+      .replace(/\bganho de produtividade\b/gi, "ajuste do ritmo operacional");
+  }
+
+  function technicalizeAction(text, fallback){
+    const value = sanitizeTEInput(text);
+    if(!value) return fallback;
+    if(/^(levantamento|acompanhamento|aplicação|aplicacao|implementação|implementacao|organização|organizacao|padronização|padronizacao)\b/i.test(value)){
+      return `o ${lowerUnlessAcronym(value)}`;
+    }
+    return lowerUnlessAcronym(value);
   }
   function joinHuman(list){
     const arr = list.map(tidy).filter(Boolean);
@@ -667,12 +683,9 @@
     const equipe   = placeholder($("te_equipe").value, "equipe envolvida");
     const objetivo = placeholder($("te_objetivo").value, "objetivo da intervenção");
 
-    const analisado = placeholder($("te_analisado").value, "o que foi analisado");
-    const achados   = placeholder($("te_achados").value, "principais achados");
-    const impacto   = placeholder($("te_impacto").value, "impacto observado");
-
-    const orientacoes = placeholder($("te_orientacoes").value, "orientações/treinamentos realizados");
-    const acoes       = placeholder($("te_acoes").value, "ações implementadas");
+    const analisado = placeholder(technicalizeAction($("te_analisado").value, ""), "levantamento inicial e análise do processo");
+    const orientacoes = placeholder(technicalizeAction($("te_orientacoes").value, ""), "orientações e treinamentos realizados");
+    const acoes       = placeholder(technicalizeAction($("te_acoes").value, ""), "ações realizadas no processo produtivo");
 
     const ferramentas = selectedList([
       {checked: $("te_f1").checked, label: "trabalho padronizado"},
@@ -692,16 +705,14 @@
     ]);
     const etapasTxt = joinHuman(etapas);
 
-    const resultados = placeholder($("te_resultados").value, "resultados percebidos");
     const obs = tidy($("te_obs").value);
 
-    const p1 = `Ao iniciar o processo de intervenção, trabalhou-se com ${equipe} a necessidade de alinhar as atividades operacionais do(a) ${processo} de acordo com ${ensureDot(objetivo)}`;
-    const p2 = `Com o objetivo de ${ensureDot(objetivo)} foram analisados ${ensureDot(analisado)} Durante essa análise, identificou-se ${ensureDot(achados)} o que ${ensureDot(impacto)}`;
-    const p3 = `Também foram realizadas ${ensureDot(orientacoes)} Considerando as ações de intervenção implementadas, foram aplicadas ferramentas como ${ensureDot(ferramentasTxt)} e executadas as seguintes ações: ${ensureDot(acoes)}`;
-    const p4core = `As medidas implementadas abrangeram as etapas de ${ensureDot(etapasTxt)} proporcionando ${ensureDot(resultados)}`;
-    const p4 = obs ? `${p4core} ${ensureDot(obs)}` : p4core;
+    const p1 = `Durante a execução da consultoria no(a) ${processo}, foi realizado ${ensureDot(analisado)} O levantamento inicial foi conduzido com foco em ${lowerUnlessAcronym(objetivo)}, considerando a rotina operacional e a sequência das atividades.`;
+    const p2 = `Na etapa seguinte, foram implementadas ações no processo produtivo, com execução de ${ensureDot(acoes)} Também foram aplicadas ferramentas como ${ensureDot(ferramentasTxt)} nas etapas de ${ensureDot(etapasTxt)}`;
+    const p3base = `Ao longo da execução, foi acompanhado o trabalho da ${equipe}, e foram aplicadas ${ensureDot(orientacoes)} mantendo suporte técnico contínuo durante as atividades operacionais.`;
+    const p3 = obs ? `${p3base} ${ensureDot(sanitizeTEInput(obs))}` : p3base;
 
-    const out = `TAREFAS EXECUTADAS:\n\n${p1}\n\n${p2}\n\n${p3}\n\n${p4}`;
+    const out = `TAREFAS EXECUTADAS:\n\n${p1}\n\n${p2}\n\n${p3}`;
     $("te_saida").value = out;
     $("te_chars").innerHTML = `Caracteres: <b>${out.length}</b>`;
   }
