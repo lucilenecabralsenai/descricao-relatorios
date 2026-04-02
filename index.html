@@ -413,6 +413,36 @@
   function toLines(s){
     return (s ?? "").toString().split(/\r?\n/).map(x => tidy(x)).filter(Boolean);
   }
+  function isMissingValue(s){
+    const v = tidy(s).toLowerCase();
+    return !v || /^(não identificado|nao identificado|não informado|nao informado|n\/a|não se aplica|nao se aplica|nenhum|nenhuma|-)$/.test(v);
+  }
+  function correctCommonTypos(s){
+    return tidy(s)
+      .replace(/\brevis[aã]o fina\b/gi, "revisão final")
+      .replace(/\bnao\b/gi, "não");
+  }
+  function addDefiniteArticle(term){
+    const txt = tidy(term);
+    if(!txt || txt.startsWith("[")) return txt;
+    if(/^(o|a|os|as|um|uma|uns|umas)\b/i.test(txt)) return txt;
+    if(/ões$|ães$|ais$|eis$|is$|os$|es$|ns$/i.test(txt)) return `os ${txt}`;
+    if(/[aã]$/i.test(txt)) return `a ${txt}`;
+    return `o ${txt}`;
+  }
+  function splitSmartList(text){
+    const clean = correctCommonTypos(text);
+    if(!clean) return [];
+    if(/\r?\n/.test(clean)) return toLines(clean);
+    return clean.split(/\s*[,;]\s*|\s+\/\s+/).map(tidy).filter(Boolean);
+  }
+  function formatActorWithArticle(name){
+    const txt = tidy(name);
+    if(!txt || txt.startsWith("[")) return txt;
+    if(/^(o|a|os|as)\b/i.test(txt)) return `pelo ${lowerUnlessAcronym(txt)}`;
+    if(/[aã]$/i.test(txt)) return `pela ${lowerUnlessAcronym(txt)}`;
+    return `pelo ${lowerUnlessAcronym(txt)}`;
+  }
   async function copyText(text){
     try{ await navigator.clipboard.writeText(text); return true; }
     catch(e){
@@ -521,7 +551,7 @@
     const entrevistado = placeholder($("as_entrevistado").value, "responsável entrevistado");
     const data         = placeholder($("as_data").value, "data do levantamento");
     const local        = placeholder($("as_local").value, "unidade/local");
-    const sistemas     = tidy($("as_sistemas").value);
+    const sistemas     = isMissingValue($("as_sistemas").value) ? "" : tidy($("as_sistemas").value);
 
     const entradas = toLines($("as_entradas").value);
     const saidas   = toLines($("as_saidas").value);
@@ -539,7 +569,7 @@
         if(/^(receber|separar|cortar|enviar|acabar|inspecionar|embalar|expedir)\b/i.test(txt)){
           return `execução de ${txt.toLowerCase()}`;
         }
-        return txt.toLowerCase();
+        return addDefiniteArticle(txt.toLowerCase());
       }).filter(Boolean));
     };
 
@@ -549,13 +579,21 @@
       ? atividades.map(item => tidy(item).toLowerCase()).filter(Boolean)
       : ["[atividade 1]", "[atividade 2]"];
     const atividadesSeqTxt = joinHuman(atividadesTxt);
-    const pontosCriticosTxt = pontoscrit.startsWith("[")
-      ? pontoscrit
-      : ensureDot(lowerUnlessAcronym(pontoscrit));
+    const pontosCriticosItens = pontoscrit.startsWith("[")
+      ? [pontoscrit]
+      : splitSmartList(lowerUnlessAcronym(pontoscrit)).map(item => lowerUnlessAcronym(item));
+    const pontosCriticosTxt = ensureDot(joinHuman(pontosCriticosItens));
+    const fornecedoresTxt = fornecedores.startsWith("[")
+      ? fornecedores
+      : `fornecedores como ${lowerUnlessAcronym(fornecedores)}`;
+    const clientesTxt = clientes.startsWith("[")
+      ? clientes
+      : `clientes como ${lowerUnlessAcronym(clientes)}`;
+    const entrevistadoTxt = formatActorWithArticle(entrevistado);
 
-    const p1 = `O processo produtivo é composto por ${lowerUnlessAcronym(processo)}, sob responsabilidade do setor ${lowerUnlessAcronym(setor)}, considerando como entradas ${entradasTxt} e como saídas ${saidasTxt}. O levantamento foi realizado em ${local} na data de ${data}, com informações fornecidas por ${lowerUnlessAcronym(entrevistado)}, envolvendo fornecedores ${lowerUnlessAcronym(fornecedores)} e clientes ${lowerUnlessAcronym(clientes)}${sistemas ? `, com uso de sistemas legados como ${lowerUnlessAcronym(sistemas)}` : ""}.`;
+    const p1 = `O processo produtivo é composto por ${lowerUnlessAcronym(processo)}, sob responsabilidade do setor ${lowerUnlessAcronym(setor)}, considerando como entradas ${entradasTxt} e como saídas ${saidasTxt}. O levantamento foi realizado em ${local}, na data de ${data}, com informações fornecidas ${entrevistadoTxt}, envolvendo ${fornecedoresTxt} e ${clientesTxt}${sistemas ? `, com uso de sistemas legados como ${lowerUnlessAcronym(sistemas)}` : ""}.`;
     const p2 = `As atividades seguem a seguinte sequência: ${atividadesSeqTxt}, mantendo o fluxo operacional atualmente praticado, sem proposição de mudanças neste registro do estado As Is.`;
-    const p3 = `Durante a análise, foram identificados ${pontosCriticosTxt} Esses aspectos evidenciam falhas, gargalos e ineficiências no processo atual, com impacto sobre continuidade do fluxo, tempo de processamento e desempenho operacional.`;
+    const p3 = `Durante a análise, foram identificados ${pontosCriticosTxt} Esses aspectos evidenciam falhas, gargalos e ineficiências no processo atual, com impacto sobre a continuidade do fluxo, o tempo de processamento e o desempenho operacional.`;
 
     let out = "";
     out += "MAPA DE MODELAGEM DE PROCESSOS DO ESTADO ATUAL (AS IS):\n\n";
@@ -704,6 +742,5 @@
 </script>
 </body>
 </html>
-
 
 
