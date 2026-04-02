@@ -454,33 +454,43 @@
     const outrosProblemas = tidy($("rd_outros_problemas").value);
 
     const problemasMap = [
-      {checked: $("rd_neg1").checked, label: "alto índice de retrabalho"},
-      {checked: $("rd_neg2").checked, label: "baixa produtividade nas operações"},
-      {checked: $("rd_neg3").checked, label: "ausência de padronização operacional"},
-      {checked: $("rd_neg4").checked, label: "gargalos no processo produtivo"},
-      {checked: $("rd_neg5").checked, label: "excesso de movimentação interna"},
-      {checked: $("rd_neg6").checked, label: "estoque intermediário entre etapas"},
-      {checked: $("rd_neg7").checked, label: "variação de medidas no produto"}
+      {checked: $("rd_neg1").checked, label: "o alto índice de retrabalho"},
+      {checked: $("rd_neg2").checked, label: "a baixa produtividade nas operações"},
+      {checked: $("rd_neg3").checked, label: "a ausência de padronização operacional"},
+      {checked: $("rd_neg4").checked, label: "os gargalos no processo produtivo"},
+      {checked: $("rd_neg5").checked, label: "o excesso de movimentação interna"},
+      {checked: $("rd_neg6").checked, label: "a formação de estoques intermediários entre etapas"},
+      {checked: $("rd_neg7").checked, label: "as variações de medidas no produto"}
     ];
     const problemasSelecionados = problemasMap.filter(x=>x.checked).map(x=>x.label);
     if(outrosProblemas){
       problemasSelecionados.push(lowerUnlessAcronym(outrosProblemas));
     }
-    const problemasTxt = problemasSelecionados.length
-      ? joinHuman(problemasSelecionados)
-      : "[problemas operacionais identificados]";
+    const principaisProblemas = problemasSelecionados.slice(0, 3);
+    const problemasComplementares = problemasSelecionados.slice(3);
+
+    const principaisTxt = principaisProblemas.length
+      ? joinHuman(principaisProblemas)
+      : "[principais problemas operacionais identificados]";
+    const complementaresTxt = problemasComplementares.length
+      ? joinHuman(problemasComplementares)
+      : "";
 
     const focoTxt = foco.startsWith("[")
       ? foco
-      : `com foco em ${lowerUnlessAcronym(foco)}`;
+      : lowerUnlessAcronym(foco);
     const objetivoTxt = objetivo.startsWith("[")
       ? objetivo
-      : `estruturar e implementar melhorias para ${lowerUnlessAcronym(objetivo)}`;
+      : lowerUnlessAcronym(objetivo);
 
     const paraCliente = cliente ? ` para a empresa ${cliente}` : "";
     const p1 = `A empresa ${empresa}, localizada em ${cidadeuf}, atua no segmento de ${segmento}, produzindo ${produto}${paraCliente}.`;
-    const p2 = `Durante ${forma}, foram identificados problemas relacionados a ${problemasTxt}, com impactos diretos na eficiência operacional e na qualidade do produto final, ${focoTxt}.`;
-    const p3 = `Diante desse cenário, a consultoria do SENAI foi direcionada para ${objetivoTxt}, com ações previstas para implantação ${local}.`;
+    const p2a = `Durante ${forma}, foram identificados problemas que impactam o desempenho do processo produtivo, destacando-se ${principaisTxt}.`;
+    const p2b = complementaresTxt
+      ? ` Também foram observados ${complementaresTxt}, comprometendo a eficiência operacional e a qualidade final.`
+      : ` Esses pontos vêm comprometendo a eficiência operacional e a qualidade final.`;
+    const p2 = `${p2a}${p2b}`;
+    const p3 = `Diante desse cenário, a consultoria do SENAI foi direcionada para ${objetivoTxt}, visando ${focoTxt}, com ações previstas para implantação ${local}.`;
 
     const out = `RESULTADOS DO DIAGNÓSTICO:\n\n${p1}\n\n${p2}\n\n${p3}`;
     $("rd_saida").value = out;
