@@ -133,13 +133,22 @@
         <div class="hr"></div>
 
         <label>Foco principal</label>
-        <input id="rd_foco" placeholder="Ex.: baixa produtividade" />
+        <input id="rd_foco" placeholder="Ex.: aumento de produtividade na costura e redução de retrabalho" />
 
         <label>Pontos negativos identificados</label>
-        <textarea id="rd_pontos" placeholder="Ex.: gargalos no fluxo produtivo, ausência de padronização, retrabalho..."></textarea>
+        <div class="checkgrid">
+          <label class="check"><input type="checkbox" id="rd_neg1"><span>Retrabalho</span></label>
+          <label class="check"><input type="checkbox" id="rd_neg2"><span>Baixa produtividade</span></label>
+          <label class="check"><input type="checkbox" id="rd_neg3"><span>Falta de padronização</span></label>
+          <label class="check"><input type="checkbox" id="rd_neg4"><span>Gargalos no processo</span></label>
+          <label class="check"><input type="checkbox" id="rd_neg5"><span>Excesso de movimentação</span></label>
+          <label class="check"><input type="checkbox" id="rd_neg6"><span>Estoque intermediário</span></label>
+          <label class="check"><input type="checkbox" id="rd_neg7"><span>Variação de medidas</span></label>
+        </div>
+        <input id="rd_outros_problemas" placeholder="Outros problemas (opcional). Ex.: atraso na liberação de corte por falha de programação" />
 
         <label>Objetivo da consultoria</label>
-        <textarea id="rd_objetivo" placeholder="Ex.: implementar melhorias na produtividade e na qualidade dos produtos"></textarea>
+        <textarea id="rd_objetivo" placeholder="Ex.: elevar a eficiência operacional por meio de padronização, redução de perdas e melhoria do fluxo produtivo"></textarea>
 
         <label>Local de implantação das ações</label>
         <input id="rd_local" placeholder="Ex.: diretamente no piso de fábrica" />
@@ -440,26 +449,53 @@
     const cliente  = tidy($("rd_cliente").value);
     const forma    = placeholder($("rd_forma").value, "forma de levantamento");
     const foco     = placeholder($("rd_foco").value, "foco principal");
-    const pontos   = placeholder($("rd_pontos").value, "pontos negativos");
     const objetivo = placeholder($("rd_objetivo").value, "objetivo da consultoria");
     const local    = placeholder($("rd_local").value, "local de implantação das ações");
+    const outrosProblemas = tidy($("rd_outros_problemas").value);
+
+    const problemasMap = [
+      {checked: $("rd_neg1").checked, label: "alto índice de retrabalho"},
+      {checked: $("rd_neg2").checked, label: "baixa produtividade nas operações"},
+      {checked: $("rd_neg3").checked, label: "ausência de padronização operacional"},
+      {checked: $("rd_neg4").checked, label: "gargalos no processo produtivo"},
+      {checked: $("rd_neg5").checked, label: "excesso de movimentação interna"},
+      {checked: $("rd_neg6").checked, label: "estoque intermediário entre etapas"},
+      {checked: $("rd_neg7").checked, label: "variação de medidas no produto"}
+    ];
+    const problemasSelecionados = problemasMap.filter(x=>x.checked).map(x=>x.label);
+    if(outrosProblemas){
+      problemasSelecionados.push(lowerUnlessAcronym(outrosProblemas));
+    }
+    const problemasTxt = problemasSelecionados.length
+      ? joinHuman(problemasSelecionados)
+      : "[problemas operacionais identificados]";
+
+    const focoTxt = foco.startsWith("[")
+      ? foco
+      : `com foco em ${lowerUnlessAcronym(foco)}`;
+    const objetivoTxt = objetivo.startsWith("[")
+      ? objetivo
+      : `estruturar e implementar melhorias para ${lowerUnlessAcronym(objetivo)}`;
 
     const paraCliente = cliente ? ` para a empresa ${cliente}` : "";
     const p1 = `A empresa ${empresa}, localizada em ${cidadeuf}, atua no segmento de ${segmento}, produzindo ${produto}${paraCliente}.`;
-    const p2 = `Durante ${forma}, foram identificados pontos negativos na operação, especialmente relacionados à ${foco}. Entre os principais aspectos observados destacam-se: ${ensureDot(pontos)}`;
-    const p3 = `Diante desse cenário, a empresa buscou o programa de consultoria do SENAI com o objetivo de ${ensureDot(objetivo)} por meio de ações a serem implantadas ${local}.`;
+    const p2 = `Durante ${forma}, foram identificados problemas relacionados a ${problemasTxt}, com impactos diretos na eficiência operacional e na qualidade do produto final, ${focoTxt}.`;
+    const p3 = `Diante desse cenário, a consultoria do SENAI foi direcionada para ${objetivoTxt}, com ações previstas para implantação ${local}.`;
 
     const out = `RESULTADOS DO DIAGNÓSTICO:\n\n${p1}\n\n${p2}\n\n${p3}`;
     $("rd_saida").value = out;
     $("rd_chars").innerHTML = `Caracteres: <b>${out.length}</b>`;
   }
   function clearRD(){
-    ["rd_empresa","rd_cidadeuf","rd_segmento","rd_produto","rd_cliente","rd_foco","rd_pontos","rd_objetivo","rd_local"].forEach(id => $(id).value="");
+    ["rd_empresa","rd_cidadeuf","rd_segmento","rd_produto","rd_cliente","rd_foco","rd_outros_problemas","rd_objetivo","rd_local"].forEach(id => $(id).value="");
+    ["rd_neg1","rd_neg2","rd_neg3","rd_neg4","rd_neg5","rd_neg6","rd_neg7"].forEach(id => $(id).checked=false);
     $("rd_forma").selectedIndex = 0;
     buildRD();
   }
-  ["rd_empresa","rd_cidadeuf","rd_segmento","rd_produto","rd_cliente","rd_forma","rd_foco","rd_pontos","rd_objetivo","rd_local"]
+  ["rd_empresa","rd_cidadeuf","rd_segmento","rd_produto","rd_cliente","rd_forma","rd_foco","rd_outros_problemas","rd_objetivo","rd_local"]
     .forEach(id => $(id).addEventListener("input", buildRD));
+  ["rd_neg1","rd_neg2","rd_neg3","rd_neg4","rd_neg5","rd_neg6","rd_neg7"]
+    .forEach(id => $(id).addEventListener("change", buildRD));
   $("rd_copiar").addEventListener("click", async ()=>{
     buildRD();
     const ok = await copyText($("rd_saida").value);
