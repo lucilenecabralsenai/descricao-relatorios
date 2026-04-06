@@ -478,6 +478,18 @@
       return true;
     }
   }
+  function pick(arr){
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+  function buildReportId(){
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let id = "";
+    for(let i=0;i<6;i++) id += chars[Math.floor(Math.random() * chars.length)];
+    return id;
+  }
+  function appendReportId(text){
+    return `${text}\n\nID do relatório: ${buildReportId()}`;
+  }
 
   // ===== Tab navigation =====
   const tabs = [
@@ -539,15 +551,23 @@
       : lowerUnlessAcronym(objetivo);
 
     const paraCliente = cliente ? ` para a empresa ${cliente}` : "";
-    const p1 = `A empresa ${empresa}, localizada em ${cidadeuf}, atua no segmento de ${segmento}, produzindo ${produto}${paraCliente}.`;
-    const p2a = `Durante ${forma}, foram identificados problemas que impactam o desempenho do processo produtivo, destacando-se ${principaisTxt}.`;
+    const p1 = pick([
+      `A empresa ${empresa}, localizada em ${cidadeuf}, atua no segmento de ${segmento}, produzindo ${produto}${paraCliente}.`,
+      `No contexto da empresa ${empresa}, localizada em ${cidadeuf}, observou-se atuação no segmento de ${segmento}, com produção de ${produto}${paraCliente}.`,
+      `Na avaliação da empresa ${empresa}, situada em ${cidadeuf}, verificou-se atuação no segmento de ${segmento}, com foco na produção de ${produto}${paraCliente}.`
+    ]);
+    const p2a = `${pick(["Durante", "Ao longo da", "No decorrer da"])} ${forma}, foram identificados problemas que ${pick(["impactam", "comprometem", "afetam"])} o desempenho do processo produtivo, destacando-se ${principaisTxt}.`;
     const p2b = complementaresTxt
-      ? ` Também foram observados ${complementaresTxt}, comprometendo a eficiência operacional e a qualidade final.`
-      : ` Esses pontos vêm comprometendo a eficiência operacional e a qualidade final.`;
+      ? ` Também foram observados ${complementaresTxt}, ${pick(["comprometendo", "afetando", "impactando"])} a eficiência operacional e a qualidade final.`
+      : ` Esses pontos vêm ${pick(["comprometendo", "afetando", "impactando"])} a eficiência operacional e a qualidade final.`;
     const p2 = `${p2a}${p2b}`;
-    const p3 = `Diante desse cenário, a consultoria do SENAI foi direcionada para ${objetivoTxt}, ${focoTxt}, com ações previstas para implantação ${local}.`;
+    const p3 = pick([
+      `Diante desse cenário, a consultoria do SENAI foi direcionada para ${objetivoTxt}, ${focoTxt}, com ações previstas para implantação ${local}.`,
+      `Com base nesse cenário, a consultoria do SENAI foi orientada para ${objetivoTxt}, ${focoTxt}, com ações previstas para implantação ${local}.`,
+      `Frente a esse cenário, a consultoria do SENAI foi conduzida para ${objetivoTxt}, ${focoTxt}, com ações previstas para implantação ${local}.`
+    ]);
 
-    const out = `RESULTADOS DO DIAGNÓSTICO:\n\n${p1}\n\n${p2}\n\n${p3}`;
+    const out = appendReportId(`RESULTADOS DO DIAGNÓSTICO:\n\n${p1}\n\n${p2}\n\n${p3}`);
     $("rd_saida").value = out;
     $("rd_chars").innerHTML = `Caracteres: <b>${out.length}</b>`;
   }
@@ -617,9 +637,17 @@
     const entrevistadoTxt = formatActorWithArticle(entrevistado);
 
     const setorTxt = lowerUnlessAcronym(setor).replace(/^(de\s+)/i, "");
-    const p1 = `O processo produtivo de ${lowerUnlessAcronym(processo)} é composto pelas atividades relacionadas à sua execução, sob responsabilidade do setor de ${setorTxt}, considerando como entradas ${entradasTxt} e como saídas ${saidasTxt}. O levantamento foi realizado em ${local}, na data de ${data}, com informações fornecidas ${entrevistadoTxt}, envolvendo ${fornecedoresTxt} e ${clientesTxt}${sistemas ? `, com uso de sistemas legados como ${lowerUnlessAcronym(sistemas)}` : ""}.`;
-    const p2 = `As atividades seguem a seguinte sequência: ${atividadesSeqTxt}, mantendo o fluxo operacional atualmente praticado, sem proposição de mudanças neste registro do estado As Is.`;
-    const p3 = `Durante a análise, foram identificados ${pontosCriticosTxt} Esses achados evidenciam falhas, gargalos e ineficiências no processo atual, com impacto sobre a continuidade do fluxo produtivo, o tempo de processamento e o desempenho operacional.`;
+    const p1 = pick([
+      `O processo produtivo de ${lowerUnlessAcronym(processo)} é composto pelas atividades relacionadas à sua execução, sob responsabilidade do setor de ${setorTxt}, considerando como entradas ${entradasTxt} e como saídas ${saidasTxt}. O levantamento foi realizado em ${local}, na data de ${data}, com informações fornecidas ${entrevistadoTxt}, envolvendo ${fornecedoresTxt} e ${clientesTxt}${sistemas ? `, com uso de sistemas legados como ${lowerUnlessAcronym(sistemas)}` : ""}.`,
+      `No mapeamento do processo produtivo de ${lowerUnlessAcronym(processo)}, foram consideradas as atividades de execução sob responsabilidade do setor de ${setorTxt}, tendo como entradas ${entradasTxt} e como saídas ${saidasTxt}. O levantamento ocorreu em ${local}, na data de ${data}, com informações fornecidas ${entrevistadoTxt}, envolvendo ${fornecedoresTxt} e ${clientesTxt}${sistemas ? `, com uso de sistemas legados como ${lowerUnlessAcronym(sistemas)}` : ""}.`,
+      `Na análise do processo produtivo de ${lowerUnlessAcronym(processo)}, foram registradas as atividades da execução sob responsabilidade do setor de ${setorTxt}, considerando como entradas ${entradasTxt} e como saídas ${saidasTxt}. O levantamento foi conduzido em ${local}, na data de ${data}, com informações fornecidas ${entrevistadoTxt}, envolvendo ${fornecedoresTxt} e ${clientesTxt}${sistemas ? `, com uso de sistemas legados como ${lowerUnlessAcronym(sistemas)}` : ""}.`
+    ]);
+    const p2 = pick([
+      `As atividades seguem a seguinte sequência: ${atividadesSeqTxt}, mantendo o fluxo operacional atualmente praticado, sem proposição de mudanças neste registro do estado As Is.`,
+      `A sequência atual das atividades é: ${atividadesSeqTxt}, preservando o fluxo operacional praticado no registro do estado As Is, sem proposição de mudanças.`,
+      `No estado As Is, as atividades são executadas na sequência: ${atividadesSeqTxt}, mantendo o fluxo operacional vigente, sem proposição de mudanças.`
+    ]);
+    const p3 = `${pick(["Durante a análise", "Ao longo da avaliação", "Na avaliação técnica"])}, foram identificados ${pontosCriticosTxt} Esses achados evidenciam falhas, gargalos e ineficiências no processo atual, ${pick(["impactando", "comprometendo", "afetando"])} a continuidade do fluxo produtivo, o tempo de processamento e o desempenho operacional.`;
 
     let out = "";
     out += "MAPA DE MODELAGEM DE PROCESSOS DO ESTADO ATUAL (AS IS):\n\n";
@@ -630,6 +658,7 @@
     out += "3. Falhas, gargalos e ineficiências identificadas\n";
     out += `${p3}\n\n`;
     out += `Validação do mapeamento: ${validacao}.`;
+    out = appendReportId(out);
 
     $("as_saida").value = out;
     $("as_chars").innerHTML = `Caracteres: <b>${out.length}</b>`;
@@ -726,11 +755,23 @@
     const etapasFmt = tidy(etapasTxt).replace(/\.$/, "");
     const orientacoesTxt = tidy(orientacoes).replace(/\.$/, "");
 
-    const p1 = `No processo de ${processoTxt}, foi realizado o levantamento do fluxo produtivo, com análise de ${analisadoTxt}. Foi acompanhado o trabalho com foco em ${objetivoTxt}, considerando a rotina operacional e a sequência das atividades.`;
-    const p2 = `Na etapa seguinte, foram implementadas ações no processo produtivo, com execução de ${acoesTxt}, com aplicação de ferramentas como ${ferramentasFmt} nas etapas de ${etapasFmt}.`;
-    const p3 = `Ao longo da execução, sendo realizadas orientações junto à ${equipeTxt}, com acompanhamentos técnicos sobre ${orientacoesTxt}, mantendo suporte contínuo durante as atividades operacionais.`;
+    const p1 = pick([
+      `No processo de ${processoTxt}, foi realizado o levantamento do fluxo produtivo, com análise de ${analisadoTxt}. Foi acompanhado o trabalho com foco em ${objetivoTxt}, considerando a rotina operacional e a sequência das atividades.`,
+      `Durante a intervenção no processo de ${processoTxt}, foi realizado o levantamento do fluxo produtivo, com análise de ${analisadoTxt}. O trabalho foi acompanhado com foco em ${objetivoTxt}, considerando a rotina operacional e a sequência das atividades.`,
+      `Na execução da intervenção no processo de ${processoTxt}, foi realizado o levantamento do fluxo produtivo, com análise de ${analisadoTxt}. O acompanhamento ocorreu com foco em ${objetivoTxt}, considerando a rotina operacional e a sequência das atividades.`
+    ]);
+    const p2 = pick([
+      `Na etapa seguinte, foram implementadas ações no processo produtivo, com execução de ${acoesTxt}, com aplicação de ferramentas como ${ferramentasFmt} nas etapas de ${etapasFmt}.`,
+      `Em seguida, foram implementadas ações no processo produtivo, com execução de ${acoesTxt}, aplicando ferramentas como ${ferramentasFmt} nas etapas de ${etapasFmt}.`,
+      `Posteriormente, foram implementadas ações no processo produtivo, com execução de ${acoesTxt}, com uso de ferramentas como ${ferramentasFmt} nas etapas de ${etapasFmt}.`
+    ]);
+    const p3 = pick([
+      `Ao longo da execução, sendo realizadas orientações junto à ${equipeTxt}, com acompanhamentos técnicos sobre ${orientacoesTxt}, mantendo suporte contínuo durante as atividades operacionais.`,
+      `Durante a execução, foram realizadas orientações junto à ${equipeTxt}, com acompanhamentos técnicos sobre ${orientacoesTxt}, mantendo suporte contínuo durante as atividades operacionais.`,
+      `No decorrer da execução, foram realizadas orientações junto à ${equipeTxt}, com acompanhamentos técnicos sobre ${orientacoesTxt}, mantendo suporte contínuo durante as atividades operacionais.`
+    ]);
 
-    const out = `TAREFAS EXECUTADAS:\n\n${p1}\n\n${p2}\n\n${p3}`;
+    const out = appendReportId(`TAREFAS EXECUTADAS:\n\n${p1}\n\n${p2}\n\n${p3}`);
     $("te_saida").value = out;
     $("te_chars").innerHTML = `Caracteres: <b>${out.length}</b>`;
   }
@@ -790,13 +831,17 @@
     const beneficios = placeholder(cleanRCClause($("rc_beneficios").value), "benefícios esperados");
     const conclusao = placeholder(cleanRCClause($("rc_conclusao").value), "a continuidade das ações propostas");
 
-    const p1 = `Considerando o estágio atual do processo, caracterizado por ${situacao}, recomenda-se ${recomendacoes}, bem como ${curto}.`;
+    const p1 = pick([
+      `Considerando o estágio atual do processo, caracterizado por ${situacao}, recomenda-se ${recomendacoes}, bem como ${curto}.`,
+      `Com base no estágio atual do processo, caracterizado por ${situacao}, recomenda-se ${recomendacoes}, bem como ${curto}.`,
+      `Diante do estágio atual do processo, caracterizado por ${situacao}, recomenda-se ${recomendacoes}, bem como ${curto}.`
+    ]);
     const p2 = indicadores
-      ? `Em médio prazo, recomenda-se ${medio}, bem como o monitoramento contínuo por meio de indicadores como ${indicadores}, visando sustentar a evolução do desempenho operacional.`
-      : `Em médio prazo, recomenda-se ${medio}, visando sustentar a evolução do desempenho operacional.`;
+      ? `${pick(["Em médio prazo", "Ao longo da evolução do processo", "Na continuidade da avaliação"])} recomenda-se ${medio}, bem como o monitoramento contínuo por meio de indicadores como ${indicadores}, visando sustentar a evolução do desempenho operacional.`
+      : `${pick(["Em médio prazo", "Ao longo da evolução do processo", "Na continuidade da avaliação"])} recomenda-se ${medio}, visando sustentar a evolução do desempenho operacional.`;
     const p3 = `A adoção integrada dessas ações tende a proporcionar ${beneficios}. Conclui-se que ${conclusao}.`;
 
-    const out = `RECOMENDAÇÕES E CONCLUSÕES:\n\n${p1}\n\n${p2}\n\n${p3}`;
+    const out = appendReportId(`RECOMENDAÇÕES E CONCLUSÕES:\n\n${p1}\n\n${p2}\n\n${p3}`);
     $("rc_saida").value = out;
     $("rc_chars").innerHTML = `Caracteres: <b>${out.length}</b>`;
   }
