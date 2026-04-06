@@ -759,20 +759,42 @@
   $("te_limpar").addEventListener("click", clearTE);
 
   // ===== ABA 4: Recomendações e Conclusões (3 parágrafos) =====
-  function buildRC(){
-    const situacao = placeholder($("rc_situacao").value, "situação atual");
-    const recomendacoes = placeholder($("rc_recomendacoes").value, "recomendações técnicas");
-    const curto = placeholder($("rc_curto").value, "ações prioritárias");
-    const medio = placeholder($("rc_medio").value, "ações recomendadas (médio prazo)");
-    const indicadores = tidy($("rc_indicadores").value);
-    const beneficios = placeholder($("rc_beneficios").value, "benefícios esperados");
-    const conclusao = placeholder($("rc_conclusao").value, "conclusão final");
+  function cleanRCClause(text){
+    let value = tidy(text)
+      .replace(/\btais como\b/gi, "")
+      .replace(/\s+([,.;:!?])/g, "$1")
+      .replace(/([,.;:!?])([^\s])/g, "$1 $2")
+      .replace(/\s+/g, " ")
+      .trim();
 
-    const p1 = `Com base no diagnóstico realizado, recomenda-se ${ensureDot(recomendacoes)} Considerando os problemas identificados, tais como ${ensureDot(situacao)} torna-se necessário implementar ações voltadas para ${ensureDot(curto)}`;
+    if(!value) return value;
+    return lowerUnlessAcronym(value).replace(/[.;:,!?]+$/g, "").trim();
+  }
+
+  function normalizeRCRecommendation(text){
+    const clause = cleanRCClause(text);
+    if(!clause) return clause;
+
+    return clause
+      .replace(/^manter\s+/i, "a manutenção de ")
+      .replace(/^padronizar\s+/i, "a padronização de ")
+      .replace(/^monitorar\s+/i, "o monitoramento de ");
+  }
+
+  function buildRC(){
+    const situacao = placeholder(cleanRCClause($("rc_situacao").value), "situação atual");
+    const recomendacoes = placeholder(normalizeRCRecommendation($("rc_recomendacoes").value), "a implementação de recomendações técnicas");
+    const curto = placeholder(normalizeRCRecommendation($("rc_curto").value), "ações prioritárias");
+    const medio = placeholder(normalizeRCRecommendation($("rc_medio").value), "ações recomendadas em médio prazo");
+    const indicadores = cleanRCClause($("rc_indicadores").value);
+    const beneficios = placeholder(cleanRCClause($("rc_beneficios").value), "benefícios esperados");
+    const conclusao = placeholder(cleanRCClause($("rc_conclusao").value), "a continuidade das ações propostas");
+
+    const p1 = `Considerando o estágio atual do processo, caracterizado por ${situacao}, recomenda-se ${recomendacoes}, bem como ${curto}.`;
     const p2 = indicadores
-      ? `Em médio prazo, sugere-se ${ensureDot(medio)} e a adoção de indicadores como ${ensureDot(indicadores)} a fim de possibilitar o monitoramento contínuo dos resultados.`
-      : `Em médio prazo, sugere-se ${ensureDot(medio)} a fim de possibilitar o monitoramento contínuo dos resultados.`;
-    const p3 = `A implementação das medidas propostas proporcionará ${ensureDot(beneficios)} Conclui-se que ${ensureDot(conclusao)}`;
+      ? `Em médio prazo, recomenda-se ${medio}, bem como o monitoramento contínuo por meio de indicadores como ${indicadores}, visando sustentar a evolução do desempenho operacional.`
+      : `Em médio prazo, recomenda-se ${medio}, visando sustentar a evolução do desempenho operacional.`;
+    const p3 = `A adoção integrada dessas ações tende a proporcionar ${beneficios}. Conclui-se que ${conclusao}.`;
 
     const out = `RECOMENDAÇÕES E CONCLUSÕES:\n\n${p1}\n\n${p2}\n\n${p3}`;
     $("rc_saida").value = out;
